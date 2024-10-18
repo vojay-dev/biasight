@@ -82,5 +82,5 @@ async def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
 
         response = AnalyzeResponse(uri=analyze_request.uri, result=result)
         return response
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Could not analyze URI')
