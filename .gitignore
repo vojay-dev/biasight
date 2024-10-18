@@ -1,0 +1,5 @@
+__pycache__/
+.venv/
+dist/
+.env
+gcp-vojay-gemini.json
