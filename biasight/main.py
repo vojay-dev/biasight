@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from functools import lru_cache
 from fastapi import HTTPException, status
 
@@ -14,6 +15,11 @@ from .config import Settings
 from .gemini import GeminiClient
 from .model import AnalyzeRequest, AnalyzeResponse
 from .parse import WebParser
+
+# rate limiting
+DAILY_LIMIT = 2
+daily_requests = 0
+last_reset = datetime.now().date()
 
 # setup logging
 log_format = '%(log_color)s%(asctime)s [%(levelname)s] %(reset)s%(purple)s[%(name)s] %(reset)s%(blue)s%(message)s'
@@ -64,17 +70,35 @@ result_cache: TTLCache = TTLCache(maxsize=1000, ttl=3600)
 
 @app.post('/analyze')
 async def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
+    global daily_requests, last_reset
+
+    # check if the daily limit can be reset
+    current_date = datetime.now().date()
+    if current_date > last_reset:
+        daily_requests = 0
+        last_reset = current_date
+
+    # try to use cached result
     cached_result = result_cache.get(analyze_request.uri)
 
     if cached_result:
         logger.info('returning cached result for %s', analyze_request.uri)
         return AnalyzeResponse(uri=analyze_request.uri, result=cached_result)
 
+    # check if the daily limit has been reached
+    if daily_requests >= DAILY_LIMIT:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="daily limit reached, please try again tomorrow"
+        )
+
+    daily_requests += 1
+
     logger.info('analyzing %s', analyze_request.uri)
     text = web_parser.parse(analyze_request.uri)
 
     if not text:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Could not parse URI')
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Could not parse page')
 
     try:
         result = bias_analyzer.analyze(text)
@@ -83,4 +107,4 @@ async def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
         response = AnalyzeResponse(uri=analyze_request.uri, result=result)
         return response
     except Exception:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Could not analyze URI')
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Could not analyze page')
