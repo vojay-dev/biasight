@@ -21,6 +21,7 @@ help:
 	@echo "Available commands:"
 	@echo "  make .venv          - Install dependencies using Poetry"
 	@echo "  make run            - Run service locally"
+	@echo "  make ruff           - Run linter"
 
 .venv:
 	@command -v poetry >/dev/null 2>&1 || { echo >&2 "Poetry is not installed"; exit 1; }
