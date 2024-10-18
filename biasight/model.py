@@ -8,7 +8,7 @@ class AnalyzeRequest(BaseModel):
 
 class AnalyzeResult(BaseModel):
     summary: str
-    overall_score: int
+    overall_score: Optional[int] = None
     stereotyping_feedback: str
     stereotyping_score: int
     stereotyping_example: str
