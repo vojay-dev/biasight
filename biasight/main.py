@@ -6,8 +6,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from google.oauth2 import service_account
 from google.oauth2.service_account import Credentials
-from vertexai.generative_models import ChatSession
 
+from .bias import BiasAnalyzer
 from .config import Settings
 from .gemini import GeminiClient
 from .parse import WebParser
@@ -34,6 +34,7 @@ gemini_client: GeminiClient = GeminiClient(
     credentials,
     settings.gcp_gemini_model
 )
+bias_analyzer: BiasAnalyzer = BiasAnalyzer(gemini_client)
 web_parser: WebParser = WebParser(settings.parse_max_content_length, settings.parse_chunk_size)
 
 app: FastAPI = FastAPI()
@@ -55,33 +56,7 @@ app.add_middleware(
 )
 
 @app.get('/')
-async def get_asdf():
+async def analyze():
     uri = 'https://www.tagesschau.de/ausland/amerika/scholz-biden-treffen-berlin-100.html'
     text = web_parser.parse(uri)
-    prompt = f"""
-    You are a world-class expert on identifying and explaining gender bias in written content. Analyze the following text for gender bias, considering the following categories:
-
-    1. **Stereotyping:**  Identify and analyze instances where gender stereotypes are reinforced or challenged. For example, are traditional gender roles being perpetuated? Are specific traits or behaviors attributed to one gender over another? 
-    2. **Representation:** Assess the representation of genders in the text. Are men and women equally represented? Are diverse perspectives and experiences included?  
-    3. **Language:** Analyze the language used for potentially biased or discriminatory wording.  Consider:
-        - **Gendered Language:** (e.g., "policeman" vs. "police officer," "mankind" vs. "humanity")
-        - **Loaded Language:** Words with strong connotations that could reinforce stereotypes (e.g., "bossy" vs. "assertive," "emotional" vs. "passionate"). 
-    4. **Framing:** Evaluate how the text frames gender-related issues or events. Does the framing reinforce existing power structures or biases? Are there any instances of victim-blaming or minimizing the experiences of women?
-
-    For each category:
-    - Provide a concise summary of your analysis.
-    - Give a score from 1 to 5, where 1 is highly biased and 5 is free of bias.
-
-    Finally, compute an overall "Gender Bias Score" from 1 to 5 based on the category scores.
-
-    Return your analysis in JSON format: 
-
-    {{"stereotyping_feedback": str, "stereotyping_score": int, "representation_feedback": str, "representation_score": int, "language_feedback": str, "language_score": int, "framing_feedback": str, "framing_score": int, "overall_score": int}}
-
-    Text to analyze:
-
-    {text}
-    """
-    logger.info(prompt)
-    chat: ChatSession = gemini_client.start_chat()
-    return gemini_client.get_chat_response(chat, prompt)
+    return bias_analyzer.analyze(text)
