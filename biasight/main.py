@@ -2,6 +2,7 @@ import logging
 from functools import lru_cache
 
 import colorlog
+from cachetools import TTLCache
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from google.oauth2 import service_account
@@ -56,10 +57,22 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
+# cache for results to avoid analyzing the same URI again in a short amount of time
+# ttl = seconds after which results will be invalidated
+result_cache: TTLCache = TTLCache(maxsize=1000, ttl=3600)
+
 @app.post('/analyze')
 async def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
+    cached_result = result_cache.get(analyze_request.uri)
+
+    if cached_result:
+        logger.info('returning cached result for %s', analyze_request.uri)
+        return AnalyzeResponse(uri=analyze_request.uri, result=cached_result)
+
+    logger.info('analyzing %s', analyze_request.uri)
     text = web_parser.parse(analyze_request.uri)
     result = bias_analyzer.analyze(text)
+    result_cache[analyze_request.uri] = result
 
     response = AnalyzeResponse(uri=analyze_request.uri, result=result)
     return response
