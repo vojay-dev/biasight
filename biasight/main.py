@@ -10,6 +10,7 @@ from google.oauth2.service_account import Credentials
 from .bias import BiasAnalyzer
 from .config import Settings
 from .gemini import GeminiClient
+from .model import AnalyzeRequest, AnalyzeResponse
 from .parse import WebParser
 
 # setup logging
@@ -55,8 +56,10 @@ app.add_middleware(
     allow_headers=['*'],
 )
 
-@app.get('/')
-async def analyze():
-    uri = 'https://www.tagesschau.de/ausland/amerika/scholz-biden-treffen-berlin-100.html'
-    text = web_parser.parse(uri)
-    return bias_analyzer.analyze(text)
+@app.post('/analyze')
+async def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
+    text = web_parser.parse(analyze_request.uri)
+    result = bias_analyzer.analyze(text)
+
+    response = AnalyzeResponse(uri=analyze_request.uri, result=result)
+    return response
