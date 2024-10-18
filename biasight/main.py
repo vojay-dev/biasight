@@ -10,7 +10,7 @@ from vertexai.generative_models import ChatSession
 
 from .config import Settings
 from .gemini import GeminiClient
-from .parse import parse
+from .parse import WebParser
 
 # setup logging
 log_format = '%(log_color)s%(asctime)s [%(levelname)s] %(reset)s%(purple)s[%(name)s] %(reset)s%(blue)s%(message)s'
@@ -34,6 +34,7 @@ gemini_client: GeminiClient = GeminiClient(
     credentials,
     settings.gcp_gemini_model
 )
+web_parser: WebParser = WebParser(settings.parse_max_content_length, settings.parse_chunk_size)
 
 app: FastAPI = FastAPI()
 
@@ -56,7 +57,7 @@ app.add_middleware(
 @app.get('/')
 async def get_asdf():
     uri = 'https://www.tagesschau.de/ausland/amerika/scholz-biden-treffen-berlin-100.html'
-    text = parse(uri)
+    text = web_parser.parse(uri)
     prompt = f"""
     You are a world-class expert on identifying and explaining gender bias in written content. Analyze the following text for gender bias, considering the following categories:
 
