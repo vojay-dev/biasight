@@ -7,7 +7,7 @@ Project for the She Builds AI Hackathon: https://womentechmakers.devpost.com/
 ```shell
 curl -s -X POST localhost:8000/analyze \
   -H 'Content-Type: application/json' \
-  -d '{"uri": "https://www.rbb24.de/panorama/beitrag/2024/10/berlin-biden-besuch-freitag-sperrungen-sbahn-bahn.html"}' | jq .
+  -d '{"uri": "https://womentechmakers.devpost.com/"}' | jq .
 ```
 
 ```json
