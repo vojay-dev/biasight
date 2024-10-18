@@ -30,3 +30,7 @@ help:
 .PHONY: run
 run:
 	poetry run fastapi dev biasight/main.py
+
+.PHONY: ruff
+ruff:
+	poetry run ruff check --fix

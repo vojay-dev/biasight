@@ -16,7 +16,7 @@ class BiasAnalyzer:
         )
 
     def _render_template(self, text: str) -> str:
-        return self.env.get_template(f'analyze.jinja').render(text=text)
+        return self.env.get_template('analyze.jinja').render(text=text)
 
     @staticmethod
     def _calculate_score(analyze_result: AnalyzeResult) -> int:
