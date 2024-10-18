@@ -34,7 +34,7 @@ class WebParser:
         return ' '.join(t.strip() for t in visible_texts)
 
 
-    def parse(self, uri: str) -> str:
+    def parse(self, uri: str) -> str or None:
         try:
             with requests.get(uri, stream=True) as response:
                 response.raise_for_status()
@@ -54,5 +54,5 @@ class WebParser:
                 return WebParser._text_from_html(html_content)
 
         except requests.RequestException as e:
-            logger.error(f"Error fetching URL {uri}: {str(e)}")
-            return ""
+            logger.error('error parsing URI %s: %s', uri, e)
+            return None

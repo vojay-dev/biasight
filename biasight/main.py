@@ -1,5 +1,6 @@
 import logging
 from functools import lru_cache
+from fastapi import HTTPException, status
 
 import colorlog
 from cachetools import TTLCache
@@ -71,8 +72,15 @@ async def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
 
     logger.info('analyzing %s', analyze_request.uri)
     text = web_parser.parse(analyze_request.uri)
-    result = bias_analyzer.analyze(text)
-    result_cache[analyze_request.uri] = result
 
-    response = AnalyzeResponse(uri=analyze_request.uri, result=result)
-    return response
+    if not text:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Could not parse URI')
+
+    try:
+        result = bias_analyzer.analyze(text)
+        result_cache[analyze_request.uri] = result
+
+        response = AnalyzeResponse(uri=analyze_request.uri, result=result)
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Could not analyze URI')
