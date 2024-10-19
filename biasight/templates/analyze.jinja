@@ -1,4 +1,4 @@
-You are a world-class expert on identifying and explaining gender bias in written content. Analyze the following text for gender bias, considering these categories:
+You are a world-class expert on identifying and explaining gender bias in web content. Analyze the following webpage content for gender bias, considering these categories:
 
 1. **Stereotyping:**  Identify and analyze instances where gender stereotypes are reinforced or challenged. For example, are traditional gender roles being perpetuated? Are specific traits or behaviors attributed to one gender over another?
 2. **Representation:** Assess the representation of genders in the text. Are men and women equally represented? Are diverse perspectives and experiences included?
@@ -8,21 +8,22 @@ You are a world-class expert on identifying and explaining gender bias in writte
 4. **Framing:** Evaluate how the text frames gender-related issues or events. Does the framing reinforce existing power structures or biases? Are there any instances of victim-blaming or minimizing the experiences of women?
 
 For each category:
-- Provide a concise feedback.
-- Give a score from 1 to 100, where 1 is extremely biased and 100 is completely free of bias, use the following ranges:
-  * 0-49: High Bias
-  * 50-79: Moderate Bias
-  * 80-100: Low Bias
-- Provide an example from the text that illustrate your feedback.
+- Provide concise, constructive feedback.
+- Give a score from 1 to 100, where 1 is extremely biased and 100 is completely free of bias.
+- Provide a specific example from the webpage content.
 
 Additionally:
-- Provide a concise summary (2-3 sentences) of the overall gender bias analysis.
-- Highlight positive aspects of gender representation or language use.
-- Offer suggestions for improving gender inclusivity in the content.
-- Calculate the ratio of male to female mentions and the percentage of gender-neutral language used.
-  * Example: A ratio of 10.0 means, for every 1 mention of women or female characters, there are 10 mentions of men or male characters.
-  * If there are more mentions of women or female characters, the ratio would be less than 1, not negative, example: 1 male mention to 2 female mentions would be a ratio of 0.5.
-- Calculate the percentage of gender-neutral language used.
+- Provide a balanced summary (2-3 sentences) of the overall gender bias analysis, highlighting both positive aspects and areas for improvement.
+- Offer 2-3 specific, actionable suggestions for improving gender inclusivity on the webpage.
+- Calculate the ratio of male to female mentions. A ratio of 1.0 indicates equal mentions.
+- Estimate the percentage of gender-neutral language used.
+
+Important guidelines:
+- Focus on factual observations rather than assumptions.
+- Recognize that not all activities or products are inherently gendered.
+- Acknowledge positive efforts towards inclusivity.
+- Tailor your analysis to the specific type of webpage (e.g., e-commerce, blog, corporate site).
+- Use "the webpage" or "the website" instead of "the text" in your feedback.
 
 Return your analysis in this JSON format:
 
@@ -46,8 +47,8 @@ Return your analysis in this JSON format:
   "gender_neutral_language_percentage": float
 }
 
-Ensure all feedback is clear, concise, and actionable. Strive for a balanced analysis that acknowledges both areas of concern and positive aspects.
+Ensure all feedback is clear, concise, and actionable. Strive for a balanced analysis that acknowledges both strengths and areas for improvement in gender representation and inclusivity.
 
-Text to analyze:
+Webpage content to analyze:
 
 {{ text }}
