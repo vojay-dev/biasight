@@ -29,3 +29,8 @@ class AnalyzeResult(BaseModel):
 class AnalyzeResponse(BaseModel):
     uri: str
     result: AnalyzeResult
+
+class LimitResponse(BaseModel):
+    limit: int
+    usage: int
+    last_reset: str

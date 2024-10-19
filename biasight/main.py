@@ -13,7 +13,7 @@ from google.oauth2.service_account import Credentials
 from .bias import BiasAnalyzer
 from .config import Settings
 from .gemini import GeminiClient
-from .model import AnalyzeRequest, AnalyzeResponse
+from .model import AnalyzeRequest, AnalyzeResponse, LimitResponse
 from .parse import WebParser
 
 # rate limiting
@@ -108,3 +108,8 @@ async def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
         return response
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Could not analyze page')
+
+@app.get('/limit')
+async def limit() -> LimitResponse:
+    global daily_requests, last_reset
+    return LimitResponse(limit=DAILY_LIMIT, usage=daily_requests, last_reset=last_reset.isoformat())
