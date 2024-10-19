@@ -22,6 +22,12 @@ help:
 	@echo "  make .venv          - Install dependencies using Poetry"
 	@echo "  make run            - Run service locally"
 	@echo "  make ruff           - Run linter"
+	@echo "  make docker-build   - Build Docker image"
+	@echo "  make docker-start   - Start BiaSight API with Docker"
+	@echo "  make docker-stop    - Stop BiaSight API Docker container"
+	@echo "  make docker-logs    - Tail logs of BiaSight API Docker container"
+	@echo "  make clean          - Remove latest build artifact"
+	@echo "  make build          - Build artifact for deployment"
 
 .venv:
 	@command -v poetry >/dev/null 2>&1 || { echo >&2 "Poetry is not installed"; exit 1; }
@@ -35,3 +41,39 @@ run:
 .PHONY: ruff
 ruff:
 	poetry run ruff check --fix
+
+.PHONY: docker-build
+docker-build:
+	docker build -t biasight .
+
+.PHONY: docker-start
+docker-start: docker-build
+	docker run -d --rm --name biasight -p 9091:9091 biasight
+	@echo "BiaSight API running on port 9091"
+
+.PHONY: docker-stop
+docker-stop:
+	@if [ $$(docker ps -q -f name=biasight) ]; then \
+		echo "Stopping biasight container..."; \
+		docker stop biasight; \
+	else \
+		echo "Container biasight is not running"; \
+	fi
+
+.PHONY: docker-logs
+docker-logs:
+	@if [ $$(docker ps -q -f name=biasight) ]; then \
+		docker logs -f biasight; \
+	else \
+		echo "Container biasight is not running"; \
+	fi
+
+.PHONY: clean
+clean:
+	rm -rf biasight_latest.tar.gz
+
+.PHONY: build
+build: clean
+	docker image rm biasight
+	docker build -t biasight .
+	docker save biasight:latest | gzip > biasight_latest.tar.gz
