@@ -17,7 +17,7 @@ from .model import AnalyzeRequest, AnalyzeResponse
 from .parse import WebParser
 
 # rate limiting
-DAILY_LIMIT = 2
+DAILY_LIMIT = 20
 daily_requests = 0
 last_reset = datetime.now().date()
 
