@@ -47,12 +47,12 @@ class WebParser:
                     content_length += len(chunk)
 
                     if content_length > self.max_content_length:
-                        logger.warning('max content length %d exceeded for URI %s, truncating', self.max_content_length, uri)
+                        logger.warning('Max content length %d exceeded for URI %s, truncating', self.max_content_length, uri)
                         break
 
                 html_content = ''.join(content)
-                return WebParser._text_from_html(html_content)
+                return self._text_from_html(html_content)
 
         except requests.RequestException as e:
-            logger.error('error parsing URI %s: %s', uri, e)
+            logger.error('Error parsing URI %s: %s', uri, e)
             return None

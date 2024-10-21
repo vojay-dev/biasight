@@ -35,8 +35,8 @@ class GeminiClient:
     def __init__(self, project_id: str, location: str, credentials: Credentials, model: str):
         vertexai.init(project=project_id, location=location, credentials=credentials)
 
-        logger.info('loading model: %s', model)
-        logger.info('generation config: %s', GENERATION_CONFIG)
+        logger.info('Loading model: %s', model)
+        logger.info('Generation config: %s', GENERATION_CONFIG)
 
         self.model = GenerativeModel(model, safety_settings=SAFETY_CONFIG)
 
