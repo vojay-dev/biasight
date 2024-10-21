@@ -39,7 +39,7 @@ class TestBiasAnalyzer(unittest.TestCase):
 
         self.assertEqual(96, analyze_result.overall_score)
 
-    def test_overall_score_calculation(self):
+    def test_lowest_score(self):
         gemini_client: GeminiClient = Mock()
         bias_analyzer: BiasAnalyzer = BiasAnalyzer(gemini_client)
 
@@ -56,6 +56,27 @@ class TestBiasAnalyzer(unittest.TestCase):
         analyze_result: AnalyzeResult = bias_analyzer.analyze('https://example.com/')
         self.assertEqual(1, analyze_result.overall_score)
 
+    def test_highest_score(self):
+        gemini_client: GeminiClient = Mock()
+        bias_analyzer: BiasAnalyzer = BiasAnalyzer(gemini_client)
+
+        # Ensure the highest rating is 100
+        gemini_client.get_chat_response.return_value = self._get_gemini_reply(
+            100,
+            100,
+            100,
+            100,
+            1,
+            100
+        )
+
+        analyze_result: AnalyzeResult = bias_analyzer.analyze('https://example.com/')
+        self.assertEqual(100, analyze_result.overall_score)
+
+    def test_basic_score(self):
+        gemini_client: GeminiClient = Mock()
+        bias_analyzer: BiasAnalyzer = BiasAnalyzer(gemini_client)
+
         # Ensure that overall score is average if m-to-f ratio and neutral percentage are 0
         gemini_client.get_chat_response.return_value = self._get_gemini_reply(
             10,
@@ -69,6 +90,10 @@ class TestBiasAnalyzer(unittest.TestCase):
         analyze_result: AnalyzeResult = bias_analyzer.analyze('https://example.com/')
         self.assertEqual(10, analyze_result.overall_score)
 
+    def test_ratio_score_boost(self):
+        gemini_client: GeminiClient = Mock()
+        bias_analyzer: BiasAnalyzer = BiasAnalyzer(gemini_client)
+
         # Ensure that best m-to-f ratio increases score by 30%
         gemini_client.get_chat_response.return_value = self._get_gemini_reply(
             10,
@@ -81,6 +106,10 @@ class TestBiasAnalyzer(unittest.TestCase):
 
         analyze_result: AnalyzeResult = bias_analyzer.analyze('https://example.com/')
         self.assertEqual(13, analyze_result.overall_score)
+
+    def test_neutral_percentage_boost(self):
+        gemini_client: GeminiClient = Mock()
+        bias_analyzer: BiasAnalyzer = BiasAnalyzer(gemini_client)
 
         # Ensure that best neutral percentage increases score by 10%
         gemini_client.get_chat_response.return_value = self._get_gemini_reply(
