@@ -51,7 +51,151 @@ This is the backend part of the project. **Frontend**: [biasight-ui](https://git
 
 ---
 
-## Score Calculation
+
+## Tech stack
+
+- Python 3.12 + [FastAPI](https://fastapi.tiangolo.com/) API development
+- [Jinja](https://jinja.palletsprojects.com/) templating for modular prompt generation
+- [Pydantic](https://docs.pydantic.dev/latest/) for data modeling and validation
+- [Poetry](https://python-poetry.org/) for dependency management
+- [Docker](https://www.docker.com/) for deployment
+- [Gemini](https://cloud.google.com/vertex-ai/docs/generative-ai/model-reference/gemini) via [VertexAI](https://cloud.google.com/vertex-ai) for evaluating web content
+- [BeautifulSoup](https://www.crummy.com/software/BeautifulSoup/bs4/doc/) for extracting content from web pages
+- [Ruff](https://docs.astral.sh/ruff/) as linter and code formatter together with [pre-commit](https://pre-commit.com/) hooks
+- [Github Actions](https://github.com/features/actions) to automatically run tests and linter on every push
+
+## Makefile
+
+The project includes a `Makefile` with common tasks like setting up the virtual environment with Poetry, running the
+service locally and within Docker, running test, linter and more. Simply run:
+```sh
+make help
+```
+to get an overview of all available tasks.
+
+![make help](doc/make-help.png)
+
+## Configuration
+
+**Prerequisite**
+
+- GCP project with VertexAI API enabled and access to Gemini (recommended: `gemini-1.5-flash-002` or `gemini-1.5-pro-002`)
+- JSON credentials file for GCP Service Account with VertexAI permissions
+
+The API is configured via environment variables. If a `.env` file is present in the project root, it will be loaded
+automatically. You can copy the `.env.dist` file from the repository as a basis.
+
+The following variables must be set:
+
+- `GCP_PROJECT_ID`: The ID of the Google Cloud Platform (GCP) project used for VertexAI and Gemini.
+- `GCP_LOCATION`: The location used for prediction processes.
+- `GCP_SERVICE_ACCOUNT_FILE`: The path to the service account file used for authentication with GCP.
+
+**Gemini model**
+
+The default model used for Gemini is `gemini-1.5-flash-002`. To use a different model, simply adjust the `GCP_GEMINI_MODEL`
+config in the `.env` file. For this use-case, the Flash model delivers good and cost-efficient results.
+
+## Project setup
+
+**(Optional) Configure poetry to use in-project virtualenvs**:
+```sh
+poetry config virtualenvs.in-project true
+```
+
+**Install dependencies**:
+```sh
+poetry install
+```
+
+**Run**:
+
+*Please check the Configuration section to ensure all requirements are met.*
+```sh
+curl -s -X POST localhost:8000/analyze \
+  -H 'Content-Type: application/json' \
+  -d '{"uri": "https://womentechmakers.devpost.com/"}' | jq .
+```
+
+![example](doc/example.png)
+
+## Docker
+
+All Docker commands are also encapsulated in the `Makefile` for convenience.
+
+### Build
+
+```sh
+docker build -t biasight .
+```
+
+### Run
+
+```sh
+docker run -d --rm --name biasight -p 9091:9091 biasight
+curl -s -X POST localhost:9091/analyze \
+  -H 'Content-Type: application/json' \
+  -d '{"uri": "https://womentechmakers.devpost.com/"}' | jq .
+docker stop biasight
+```
+
+### Save image for deployment
+
+```sh
+docker save biasight:latest | gzip > biasight_latest.tar.gz
+```
+
+## Gemini interaction
+
+Gemini interaction is encapsulated in the `GeminiClient` class. To ensure a high quality of prompt responses and to
+avoid unnecessary parsing issues. The `GeminiClient` class uses the Gemini JSON format mode.
+
+See: [https://ai.google.dev/gemini-api/docs/structured-output?lang=python](https://ai.google.dev/gemini-api/docs/structured-output?lang=python)
+
+This ensures Gemini replies with valid JSON, whereas the schema is attached to the individual prompt, for example:
+```
+Return your analysis in this JSON format:
+
+{
+  "summary": str,
+  "stereotyping_feedback": str,
+  "stereotyping_score": int,
+  "stereotyping_example": str,
+  "representation_feedback": str,
+  "representation_score": int,
+  "representation_example": str,
+  "language_feedback": str,
+  "language_score": int,
+  "language_example": str,
+  "framing_feedback": str,
+  "framing_score": int,
+  "framing_example": str,
+  "positive_aspects": str,
+  "improvement_suggestions": str,
+  "male_to_female_mention_ratio": float,
+  "gender_neutral_language_percentage": float
+}
+```
+
+This approach is then combined with Pydantic models to ensure the correctness of datatypes and the overall structure:
+```py
+    def analyze(self, text: str) -> AnalyzeResult:
+        prompt = self._render_template(text)
+        chat: ChatSession = self.gemini_client.start_chat()
+        chat_response: str = self.gemini_client.get_chat_response(chat, prompt)
+
+        analyze_result = AnalyzeResult.model_validate(from_json(chat_response))
+
+        # overall score is calculated via Python instead of using the LLM to ensure deterministic results
+        analyze_result.overall_score = self._calculate_score(analyze_result)
+
+        return analyze_result
+```
+
+This is a great example how to programmatically interact with Gemini, ensure the quality of the responses and use a LLM
+to cover core business logic.
+
+## Score calculation
 
 As a first step, a score is assigned by Gemini for each of the four bias categories: stereotyping, representation,
 language, and framing. The overall score is then calculated using the average of the four categories.
@@ -88,7 +232,7 @@ $$
 
 ## Example
 
-```shell
+```sh
 curl -s -X POST localhost:8000/analyze \
   -H 'Content-Type: application/json' \
   -d '{"uri": "https://womentechmakers.devpost.com/"}' | jq .
