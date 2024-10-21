@@ -51,6 +51,41 @@ This is the backend part of the project. **Frontend**: [biasight-ui](https://git
 
 ---
 
+## Score Calculation
+
+As a first step, a score is assigned by Gemini for each of the four bias categories: stereotyping, representation,
+language, and framing. The overall score is then calculated using the average of the four categories.
+
+Then, two additional factors are applied:
+
+* **Ratio Boost**: A bonus is added to the base score based on the male-to-female mention ratio. The closer the ratio is  
+  to 1 (meaning equal mentions), the higher the bonus, with a maximum boost of 30% when the ratio is exactly 1.
+* **Neutral Language Boost**: A bonus is added based on the percentage of gender-neutral language used in the text. The
+  higher the percentage of gender-neutral language, the higher the bonus, with a maximum boost of 10% when the language
+  is 100% gender-neutral.
+
+These boosts aim to acknowledge and reward content with a more balanced gender representation and inclusive language.
+
+The final overall score is then capped between 1 (extremely biased) and 100 (completely free of bias), providing a
+comprehensive evaluation of the content's inclusivity.
+
+$$
+\begin{align*}
+\text{Base Score} &= \frac{Stereotyping\_Score + Representation\_Score + Language\_Score + Framing\_Score}{4} \\
+\\
+\text{Ratio Boost} &= \begin{cases}
+30 \times (1 - |1 - Male\_to\_Female\_Mention\_Ratio|) & \text{if } Male\_to\_Female\_Mention\_Ratio > 0 \\
+0 & \text{if } Male\_to\_Female\_Mention\_Ratio = 0
+\end{cases} \\
+\\
+\text{Neutral Language Boost} &= \frac{Gender\_Neutral\_Language\_Percentage}{100} \times 10 \\
+\\
+\text{Boosted Score} &= \text{Base Score} \times \left( 1 + \frac{\text{Ratio Boost}}{100} + \frac{\text{Neutral Language Boost}}{100} \right) \\
+\\
+\text{Final Score} &= \text{round}(\text{max}(1, \text{min}(100, \text{Boosted Score})))
+\end{align*}
+$$
+
 ## Example
 
 ```shell

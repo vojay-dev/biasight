@@ -32,12 +32,12 @@ class BiasAnalyzer:
 
         # calculate ratio boost
         ratio_boost = 0
-        if male_to_female_mention_ratio > 0:  # Avoid division by zero
+        if male_to_female_mention_ratio > 0:  # avoid division by zero
             ratio_difference = abs(1 - male_to_female_mention_ratio)
-            ratio_boost = max(0, 30 * (1 - ratio_difference))  # Max boost of 30% when ratio is 1
+            ratio_boost = max(0, 30 * (1 - ratio_difference))  # max boost of 30% when ratio is 1
 
         # calculate neutral language boost
-        neutral_language_boost = (gender_neutral_language_percentage / 100) * 10  # Max boost of 10% when 100% neutral
+        neutral_language_boost = (gender_neutral_language_percentage / 100) * 10  # max boost of 10% when 100% neutral
 
         # apply boosts
         boosted_score = base_score * (1 + ratio_boost / 100 + neutral_language_boost / 100)
