@@ -1,11 +1,10 @@
 import logging
-from datetime import datetime
 from functools import lru_cache
-from fastapi import HTTPException, status
 
 import colorlog
 from cachetools import TTLCache
 from fastapi import FastAPI
+from fastapi import HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from google.oauth2 import service_account
 from google.oauth2.service_account import Credentials
@@ -13,13 +12,9 @@ from google.oauth2.service_account import Credentials
 from .bias import BiasAnalyzer
 from .config import Settings
 from .gemini import GeminiClient
+from .limit import RateLimiter
 from .model import AnalyzeRequest, AnalyzeResponse, LimitResponse
 from .parse import WebParser
-
-# rate limiting
-DAILY_LIMIT = 20
-daily_requests = 0
-last_reset = datetime.now().date()
 
 # setup logging
 log_format = '%(log_color)s%(asctime)s [%(levelname)s] %(reset)s%(purple)s[%(name)s] %(reset)s%(blue)s%(message)s'
@@ -45,6 +40,7 @@ gemini_client: GeminiClient = GeminiClient(
 )
 bias_analyzer: BiasAnalyzer = BiasAnalyzer(gemini_client)
 web_parser: WebParser = WebParser(settings.parse_max_content_length, settings.parse_chunk_size)
+rate_limiter: RateLimiter = RateLimiter(settings.daily_limit)
 
 app: FastAPI = FastAPI()
 
@@ -69,15 +65,7 @@ app.add_middleware(
 result_cache: TTLCache = TTLCache(maxsize=1000, ttl=3600)
 
 @app.post('/analyze')
-async def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
-    global daily_requests, last_reset
-
-    # check if the daily limit can be reset
-    current_date = datetime.now().date()
-    if current_date > last_reset:
-        daily_requests = 0
-        last_reset = current_date
-
+def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
     # try to use cached result
     cached_result = result_cache.get(analyze_request.uri)
 
@@ -85,14 +73,8 @@ async def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
         logger.info('returning cached result for %s', analyze_request.uri)
         return AnalyzeResponse(uri=analyze_request.uri, result=cached_result)
 
-    # check if the daily limit has been reached
-    if daily_requests >= DAILY_LIMIT:
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="daily limit reached, please try again tomorrow"
-        )
-
-    daily_requests += 1
+    # if not cached, check rate limit before invoking the analyzer
+    rate_limiter.increment()
 
     logger.info('analyzing %s', analyze_request.uri)
     text = web_parser.parse(analyze_request.uri)
@@ -111,5 +93,5 @@ async def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
 
 @app.get('/limit')
 async def limit() -> LimitResponse:
-    global daily_requests, last_reset
-    return LimitResponse(limit=DAILY_LIMIT, usage=daily_requests, last_reset=last_reset.isoformat())
+    rate_limiter.check_and_update()
+    return LimitResponse(limit=rate_limiter.limit, usage=rate_limiter.usage, last_reset=rate_limiter.last_reset_iso)
