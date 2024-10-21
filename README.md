@@ -71,14 +71,14 @@ comprehensive evaluation of the content's inclusivity.
 
 $$
 \begin{align*}
-\text{Base Score} &= \frac{Stereotyping\_Score + Representation\_Score + Language\_Score + Framing\_Score}{4} \\
+\text{Base Score} &= \frac{Stereotyping Score + Representation Score + Language Score + Framing Score}{4} \\
 \\
 \text{Ratio Boost} &= \begin{cases}
-30 \times (1 - |1 - Male\_to\_Female\_Mention\_Ratio|) & \text{if } Male\_to\_Female\_Mention\_Ratio > 0 \\
-0 & \text{if } Male\_to\_Female\_Mention\_Ratio = 0
+30 \times (1 - |1 - Male To Female Mention Ratio|) & \text{if } Male To Female Mention Ratio > 0 \\
+0 & \text{if } Male To Female Mention Ratio = 0
 \end{cases} \\
 \\
-\text{Neutral Language Boost} &= \frac{Gender\_Neutral\_Language\_Percentage}{100} \times 10 \\
+\text{Neutral Language Boost} &= \frac{Gender Neutral Language Percentage}{100} \times 10 \\
 \\
 \text{Boosted Score} &= \text{Base Score} \times \left( 1 + \frac{\text{Ratio Boost}}{100} + \frac{\text{Neutral Language Boost}}{100} \right) \\
 \\
