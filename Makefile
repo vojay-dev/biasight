@@ -21,7 +21,9 @@ help:
 	@echo "Available commands:"
 	@echo "  make .venv          - Install dependencies using Poetry"
 	@echo "  make run            - Run service locally"
+	@echo "  make test           - Run tests"
 	@echo "  make ruff           - Run linter"
+	@echo "  make check          - Run tests and linter"
 	@echo "  make docker-build   - Build Docker image"
 	@echo "  make docker-start   - Start BiaSight API with Docker"
 	@echo "  make docker-stop    - Stop BiaSight API Docker container"
@@ -38,9 +40,16 @@ help:
 run:
 	poetry run fastapi dev biasight/main.py
 
+.PHONY: test
+test:
+	poetry run python -m pytest tests/ -v -Wignore
+
 .PHONY: ruff
 ruff:
 	poetry run ruff check --fix
+
+.PHONY: check
+check: test ruff
 
 .PHONY: docker-build
 docker-build:
