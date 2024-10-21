@@ -63,7 +63,7 @@ app.add_middleware(
 
 # cache for results to avoid analyzing the same URI again in a short amount of time
 # ttl = seconds after which results will be invalidated
-result_cache: TTLCache = TTLCache(maxsize=1000, ttl=3600)
+result_cache: TTLCache = TTLCache(maxsize=settings.cache_size, ttl=settings.cache_ttl)
 
 @app.post('/analyze')
 @retry(3, ignore_exceptions=(HTTPException,))
