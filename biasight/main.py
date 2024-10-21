@@ -15,6 +15,7 @@ from .gemini import GeminiClient
 from .limit import RateLimiter
 from .model import AnalyzeRequest, AnalyzeResponse, LimitResponse
 from .parse import WebParser
+from .util import retry
 
 # setup logging
 log_format = '%(log_color)s%(asctime)s [%(levelname)s] %(reset)s%(purple)s[%(name)s] %(reset)s%(blue)s%(message)s'
@@ -65,18 +66,19 @@ app.add_middleware(
 result_cache: TTLCache = TTLCache(maxsize=1000, ttl=3600)
 
 @app.post('/analyze')
+@retry(3, ignore_exceptions=(HTTPException,))
 def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
     # try to use cached result
     cached_result = result_cache.get(analyze_request.uri)
 
     if cached_result:
-        logger.info('returning cached result for %s', analyze_request.uri)
+        logger.info('Returning cached result for %s', analyze_request.uri)
         return AnalyzeResponse(uri=analyze_request.uri, result=cached_result)
 
     # if not cached, check rate limit before invoking the analyzer
     rate_limiter.increment()
 
-    logger.info('analyzing %s', analyze_request.uri)
+    logger.info('Analyzing %s', analyze_request.uri)
     text = web_parser.parse(analyze_request.uri)
 
     if not text:
