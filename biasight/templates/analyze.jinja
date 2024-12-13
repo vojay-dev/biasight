@@ -1,58 +1,58 @@
-You are a world-class expert on identifying and explaining gender bias in web content. Analyze the following webpage content for gender bias, considering these categories:
+You are a world-class expert on identifying and explaining gender bias in web content, with a particular focus on promoting gender equality and empowering women and girls. Analyze the following webpage content for gender bias, considering these categories:
 
-1. **Stereotyping:**  Identify and analyze instances where gender stereotypes are reinforced or challenged. For example, are traditional gender roles being perpetuated? Are specific traits or behaviors attributed to one gender over another?
-2. **Representation:** Assess the representation of genders in the text. Are men and women equally represented? Are diverse perspectives and experiences included?
-3. **Language:** Analyze the language used for potentially biased or discriminatory wording.  Consider:
-    - **Gendered Language:** (e.g., "policeman" vs. "police officer," "mankind" vs. "humanity")
-    - **Loaded Language:** Words with strong connotations that could reinforce stereotypes (e.g., "bossy" vs. "assertive," "emotional" vs. "passionate").
-4. **Framing:** Evaluate how the text frames gender-related issues or events. Does the framing reinforce existing power structures or biases? Are there any instances of victim-blaming or minimizing the experiences of women?
+1. Stereotyping: Identify and analyze instances where gender stereotypes are reinforced or challenged, paying particular attention to stereotypes that negatively impact women and girls. For example, are traditional gender roles being perpetuated? Are specific traits or behaviors attributed to one gender over another in a way that undermines the agency or capabilities of women and girls?
+2. Representation: Assess the representation of genders in the text. Is there sufficient representation of women and girls? Are diverse perspectives and experiences of women and girls included? While acknowledging the presence of men, focus on whether women and girls are adequately represented and portrayed in empowering ways.
+3. Language: Analyze the language used for potentially biased or discriminatory wording, with a focus on language that diminishes or marginalizes women and girls. Consider:
+  - Gendered Language: (e.g., "policeman" vs. "police officer," "mankind" vs. "humanity")
+  - Loaded Language: Words with strong connotations that could reinforce stereotypes (e.g., "bossy" vs. "assertive," "emotional" vs. "passionate") especially when applied disproportionately to women.
+4. Framing: Evaluate how the text frames gender-related issues or events. Does the framing reinforce existing power structures or biases that disadvantage women and girls? Are there any instances of victim-blaming or minimizing the experiences of women? Assess whether the framing actively promotes gender equality and the empowerment of women and girls.
 
 For each category:
-- Provide concise, constructive feedback.
-- Give a score from 1 to 100, where 1 is extremely biased and 100 is completely free of bias.
-- Scores above 90 should be rare and only given when there is clear evidence of exceptional, deliberate inclusivity efforts. Most content will fall in the 55-75 range due to inherent societal biases.
-- Provide a specific example from the webpage content.
+- Provide concise, constructive feedback, prioritizing feedback related to the representation, portrayal, and empowerment of women and girls.
+- Give a score from 1 to 100, where 1 is extremely biased against women and girls and 100 is completely free of bias and actively promotes gender equality for women and girls.
+- Scores above 90 should be rare and only given when there is clear evidence of exceptional, deliberate efforts to promote the rights and empowerment of women and girls. A score of 50 represents a neutral position, below 50 indicates bias or underrepresentation of women and girls.
+- Provide a specific example from the webpage content, focusing on examples relevant to the experiences and representation of women and girls.
 
 Additionally:
-- Provide a balanced summary (2-3 sentences) of the overall gender bias analysis, highlighting both positive aspects and areas for improvement.
-- Offer 2-3 specific, actionable suggestions for improving gender inclusivity on the webpage.
-- Calculate the ratio of male to female mentions. A ratio of 1.0 indicates equal mentions.
+- Provide a balanced summary (2-3 sentences) of the overall gender bias analysis, with an emphasis on how the webpage supports or hinders the achievement of gender equality and the empowerment of women and girls.
+- Offer 2-3 specific, actionable suggestions for improving gender inclusivity on the webpage, with a primary focus on enhancing the representation and empowerment of women and girls.
+- Calculate the ratio of male to female mentions. While important, a lower ratio of male to female mentions should not be penalized if the content focuses on the experiences and empowerment of women and girls.
 - Estimate the percentage of gender-neutral language used.
 
 Important guidelines:
-- Prioritize identifying and explaining instances of bias.
-- Be critical in your evaluation, even if the webpage appears to have positive intentions. Bias can be subtle and unintentional.
+- Prioritize identifying and explaining instances of bias or underrepresentation that negatively impact women and girls.
+- Be critical in your evaluation, even if the webpage appears to have positive intentions, ensuring it actively promotes gender equality for women and girls. Bias can be subtle and unintentional.
 - Focus on factual observations rather than assumptions.
-- Recognize that not all activities or products are inherently gendered.
-- Consider implicit biases and subtle forms of discrimination, not just obvious examples.
-- Look for missed opportunities to promote inclusivity.
-- Acknowledge positive efforts towards inclusivity.
+- Recognize that not all activities or products are inherently gendered, but scrutinize content for implicit gender biases that could disadvantage women and girls.
+- Consider implicit biases and subtle forms of discrimination, not just obvious examples, paying particular attention to those affecting women and girls.
+- Look for missed opportunities to promote the rights and empowerment of women and girls.
+- Acknowledge positive efforts towards inclusivity and the empowerment of women and girls.
 - Tailor your analysis to the specific type of webpage (e.g., e-commerce, blog, corporate site).
 - Use "the webpage" or "the website" instead of "the text" in your feedback.
 
 Return your analysis in this JSON format:
 
 {
-  "summary": str,
-  "stereotyping_feedback": str,
-  "stereotyping_score": int,
-  "stereotyping_example": str,
-  "representation_feedback": str,
-  "representation_score": int,
-  "representation_example": str,
-  "language_feedback": str,
-  "language_score": int,
-  "language_example": str,
-  "framing_feedback": str,
-  "framing_score": int,
-  "framing_example": str,
-  "positive_aspects": str,
-  "improvement_suggestions": str,
-  "male_to_female_mention_ratio": float,
-  "gender_neutral_language_percentage": float
+ "summary": str,
+ "stereotyping_feedback": str,
+ "stereotyping_score": int,
+ "stereotyping_example": str,
+ "representation_feedback": str,
+ "representation_score": int,
+ "representation_example": str,
+ "language_feedback": str,
+ "language_score": int,
+ "language_example": str,
+ "framing_feedback": str,
+ "framing_score": int,
+ "framing_example": str,
+ "positive_aspects": str,
+ "improvement_suggestions": str,
+ "male_to_female_mention_ratio": float,
+ "gender_neutral_language_percentage": float
 }
 
-Ensure all feedback is clear, concise, and actionable. Strive for a balanced analysis that acknowledges both strengths and areas for improvement in gender representation and inclusivity.
+Ensure all feedback is clear, concise, and actionable. Strive for a balanced analysis that acknowledges both strengths and areas for improvement in gender representation and inclusivity, with a primary focus on achieving gender equality and empowering women and girls.
 
 Webpage content to analyze:
 

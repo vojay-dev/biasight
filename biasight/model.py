@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
@@ -29,6 +30,7 @@ class AnalyzeResult(BaseModel):
 class AnalyzeResponse(BaseModel):
     uri: str
     result: AnalyzeResult
+    created_at: datetime = datetime.now()
 
 class LimitResponse(BaseModel):
     limit: int

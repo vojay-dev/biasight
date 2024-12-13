@@ -73,7 +73,7 @@ def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
 
     if cached_result:
         logger.info('Returning cached result for %s', analyze_request.uri)
-        return AnalyzeResponse(uri=analyze_request.uri, result=cached_result)
+        return cached_result
 
     # if not cached, check rate limit before invoking the analyzer
     rate_limiter.increment()
@@ -86,9 +86,9 @@ def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
 
     try:
         result = bias_analyzer.analyze(text)
-        result_cache[analyze_request.uri] = result
-
         response = AnalyzeResponse(uri=analyze_request.uri, result=result)
+        result_cache[analyze_request.uri] = response
+
         return response
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Could not analyze page')
