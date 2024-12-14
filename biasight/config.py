@@ -12,3 +12,6 @@ class Settings(BaseSettings):
     daily_limit: int = 20
     cache_size: int = 1000
     cache_ttl: int = 3600
+    telegram_enabled: bool = False
+    telegram_token: str = ''
+    telegram_chat_id: int = 0

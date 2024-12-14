@@ -2,6 +2,7 @@ import logging
 from functools import lru_cache
 
 import colorlog
+import httpx
 from cachetools import TTLCache
 from fastapi import FastAPI
 from fastapi import HTTPException, status
@@ -14,6 +15,7 @@ from .config import Settings
 from .gemini import GeminiClient
 from .limit import RateLimiter
 from .model import AnalyzeRequest, AnalyzeResponse, LimitResponse
+from .notify import TelegramNotifier, create_notifier
 from .parse import WebParser
 from .util import retry
 
@@ -42,6 +44,7 @@ gemini_client: GeminiClient = GeminiClient(
 bias_analyzer: BiasAnalyzer = BiasAnalyzer(gemini_client)
 web_parser: WebParser = WebParser(settings.parse_max_content_length, settings.parse_chunk_size)
 rate_limiter: RateLimiter = RateLimiter(settings.daily_limit)
+notifier = create_notifier(settings)
 
 app: FastAPI = FastAPI()
 
@@ -73,6 +76,7 @@ def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
 
     if cached_result:
         logger.info('Returning cached result for %s', analyze_request.uri)
+        notifier.notify_analysis(analyze_request.uri, cache_hit=True)
         return cached_result
 
     # if not cached, check rate limit before invoking the analyzer
@@ -89,6 +93,7 @@ def analyze(analyze_request: AnalyzeRequest) -> AnalyzeResponse:
         response = AnalyzeResponse(uri=analyze_request.uri, result=result)
         result_cache[analyze_request.uri] = response
 
+        notifier.notify_analysis(analyze_request.uri)
         return response
     except Exception:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Could not analyze page')
