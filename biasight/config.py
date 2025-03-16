@@ -6,7 +6,7 @@ class Settings(BaseSettings):
     gcp_project_id: str
     gcp_location: str
     gcp_service_account_file: str
-    gcp_gemini_model: str = 'gemini-1.5-pro-002'
+    gcp_gemini_model: str = 'gemini-2.0-flash'
     parse_max_content_length: int = 1048576
     parse_chunk_size: int = 8192
     daily_limit: int = 20

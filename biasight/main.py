@@ -2,7 +2,6 @@ import logging
 from functools import lru_cache
 
 import colorlog
-import httpx
 from cachetools import TTLCache
 from fastapi import FastAPI
 from fastapi import HTTPException, status
@@ -15,7 +14,7 @@ from .config import Settings
 from .gemini import GeminiClient
 from .limit import RateLimiter
 from .model import AnalyzeRequest, AnalyzeResponse, LimitResponse
-from .notify import TelegramNotifier, create_notifier
+from .notify import create_notifier
 from .parse import WebParser
 from .util import retry
 

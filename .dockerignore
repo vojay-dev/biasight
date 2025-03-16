@@ -1,2 +1,5 @@
 .venv/
+.github/
+.git/
+doc/
 biasight_latest.tar.gz
